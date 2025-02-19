@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
-	hs "url-shoter/internal/http-sever"
+	hs "url-shoter/internal/http-server"
 	resp "url-shoter/internal/lib/api/response"
 	"url-shoter/internal/lib/logger/sl"
 	"url-shoter/internal/lib/random"
@@ -27,6 +27,7 @@ type Response struct {
 // todo: move to config
 const aliasLength = 6
 
+//go:generate go run github.com/vektra/mockery/v2@v2.52.2 --name=UrlSaver
 type UrlSaver interface {
 	SaveURL(urlToSave string, alias string) (int64, error)
 }
@@ -75,8 +76,8 @@ func New(log *slog.Logger, urlSaver UrlSaver) http.HandlerFunc {
 				return
 			}
 
-			log.Error("failed to save url", sl.Err(err))
-			render.JSON(w, r, resp.Error("failed to save url"))
+			log.Error("failed to add url", sl.Err(err))
+			render.JSON(w, r, resp.Error("failed to add url"))
 
 			return
 		}

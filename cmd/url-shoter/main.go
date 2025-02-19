@@ -9,8 +9,9 @@ import (
 	"net/http"
 	"os"
 	"url-shoter/internal/config"
-	"url-shoter/internal/http-sever/handlers/url/save"
-	mvLogger "url-shoter/internal/http-sever/middleware/logger"
+	"url-shoter/internal/http-server/handlers/redirect"
+	"url-shoter/internal/http-server/handlers/url/save"
+	mvLogger "url-shoter/internal/http-server/middleware/logger"
 	"url-shoter/internal/lib/logger/handlers/slogpretty"
 	"url-shoter/internal/lib/logger/sl"
 	"url-shoter/internal/storage/sqlite"
@@ -51,10 +52,20 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Post("/url", save.New(log, storage))
+	router.Route("/url", func(r chi.Router) {
+		log.Debug("route", cfg.HttpServer.User, cfg.HttpServer.Password)
+		//todo jwt
+		r.Use(middleware.BasicAuth("url-shoter", map[string]string{
+			cfg.HttpServer.User: cfg.HttpServer.Password,
+		}))
+		r.Post("/", save.New(log, storage))
+		//todo  DELETE url
+	})
+
+	router.Get("/{alias}", redirect.New(log, storage))
 	log.Info("starting server", slog.String("address", cfg.Address))
 
-	//todo run server
+	//run server
 	srv := &http.Server{
 		Addr:              cfg.Address,
 		Handler:           router,

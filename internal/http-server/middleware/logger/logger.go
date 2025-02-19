@@ -3,7 +3,7 @@ package logger
 import (
 	"net/http"
 	"time"
-	hs "url-shoter/internal/http-sever"
+	hs "url-shoter/internal/http-server"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
