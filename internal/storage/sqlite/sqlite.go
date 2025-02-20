@@ -95,13 +95,16 @@ func (s *Storage) DeleteUrl(alias string) error {
 		return fmt.Errorf("%s: prepare statment: %w", op, err)
 	}
 
-	_, err = stmt.Exec(alias)
-	if err != nil {
-		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrNotFound) {
+	res, err := stmt.Exec(alias)
+
+	if res != nil {
+		rows, _ := res.RowsAffected()
+		if rows == 0 {
 			return fmt.Errorf("%s: %w", op, storage.ErrAliasNotFound)
 		}
+	}
 
+	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
