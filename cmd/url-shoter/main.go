@@ -10,6 +10,7 @@ import (
 	"os"
 	"url-shoter/internal/config"
 	"url-shoter/internal/http-server/handlers/redirect"
+	"url-shoter/internal/http-server/handlers/url/delete"
 	"url-shoter/internal/http-server/handlers/url/save"
 	mvLogger "url-shoter/internal/http-server/middleware/logger"
 	"url-shoter/internal/lib/logger/handlers/slogpretty"
@@ -59,7 +60,7 @@ func main() {
 			cfg.HttpServer.User: cfg.HttpServer.Password,
 		}))
 		r.Post("/", save.New(log, storage))
-		//todo  DELETE url
+		r.Delete("/{alias}", delete.New(log, storage))
 	})
 
 	router.Get("/{alias}", redirect.New(log, storage))
